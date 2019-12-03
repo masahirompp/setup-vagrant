@@ -84,12 +84,12 @@ Vagrant.configure(2) do |config|
     # package install
     yum -y install epel-release
     yum -y install python-devel unzip wget ansible git
-    ssh-keygen -f /root/.ssh/id_rsa -t rsa -N ""
+    ssh-keygen -f /root/.ssh/id_rsa -t rsa -N "" 2>/dev/null <<< y >/dev/null
     cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
 
     # provision with ansible
     cd /root
-    git clone https://github.com/personium/ansible
+    git clone --depth 1 -b develop https://github.com/masahirompp/ansible
     mv ansible{,.org}
     cp -r ansible.org/1-server_unit ansible
     cp -f /vagrant/hosts /root/ansible/static_inventory/hosts
@@ -105,7 +105,7 @@ Vagrant.configure(2) do |config|
     openssl req -new -key /root/ansible/resource/ap/opt/x509/unit.key -out /root/ansible/resource/ap/opt/x509/unit.csr -subj "/CN=personium.example.com"
     openssl x509 -req -days 3650 -in /root/ansible/resource/ap/opt/x509/unit.csr -signkey /root/ansible/resource/ap/opt/x509/unit.key -out /root/ansible/resource/ap/opt/x509/unit-self-sign.crt
 
-    date; ansible-playbook /root/ansible/init_personium.yml ; date
+    ansible-playbook /root/ansible/init_personium.yml -vv
   SHELL
 
 end
